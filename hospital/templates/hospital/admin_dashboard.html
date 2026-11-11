@@ -1,0 +1,268 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Dashboard | Hospital Management</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f4f7fb;
+            font-family: Arial, sans-serif;
+        }
+
+        .navbar {
+            background-color: #123456;
+        }
+
+        .navbar-brand {
+            color: white;
+            font-weight: bold;
+        }
+
+        .dashboard-title {
+            color: #123456;
+            font-weight: bold;
+        }
+
+        .stat-card {
+            border: none;
+            border-radius: 12px;
+            padding: 25px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .doctors {
+            background-color: #0d6efd;
+        }
+
+        .patients {
+            background-color: #198754;
+        }
+
+        .departments {
+            background-color: #6f42c1;
+        }
+
+        .appointments {
+            background-color: #fd7e14;
+        }
+
+        .pending {
+            background-color: #dc3545;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+
+        <a class="navbar-brand" href="{% url 'home' %}">
+            Hospital Appointment System
+        </a>
+
+        <div class="ms-auto">
+
+            <a href="{% url 'home' %}" class="btn btn-outline-light btn-sm">
+                Home
+            </a>
+
+            <a href="{% url 'logout' %}" class="btn btn-danger btn-sm">
+                Logout
+            </a>
+
+        </div>
+
+    </div>
+</nav>
+
+
+<!-- DASHBOARD -->
+
+<div class="container mt-5">
+
+    <h2 class="dashboard-title mb-2">
+        Admin Dashboard
+    </h2>
+
+    <p class="text-muted">
+        Welcome, {{ request.user.username }}
+    </p>
+
+
+    <!-- STATISTICS CARDS -->
+
+    <div class="row g-4 mt-3">
+
+        <div class="col-md-4 col-lg-4">
+            <div class="stat-card doctors">
+                <h5>Total Doctors</h5>
+                <div class="stat-number">
+                    {{ total_doctors }}
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md-4 col-lg-4">
+            <div class="stat-card patients">
+                <h5>Total Patients</h5>
+                <div class="stat-number">
+                    {{ total_patients }}
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md-4 col-lg-4">
+            <div class="stat-card departments">
+                <h5>Total Departments</h5>
+                <div class="stat-number">
+                    {{ total_departments }}
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md-6 col-lg-6">
+            <div class="stat-card appointments">
+                <h5>Total Appointments</h5>
+                <div class="stat-number">
+                    {{ total_appointments }}
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md-6 col-lg-6">
+            <div class="stat-card pending">
+                <h5>Pending Appointments</h5>
+                <div class="stat-number">
+                    {{ pending_appointments }}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- RECENT APPOINTMENTS -->
+
+    <div class="table-container mt-5 mb-5">
+
+        <h4 class="mb-4">
+            Recent Appointments
+        </h4>
+
+        <div class="table-responsive">
+
+            <table class="table table-bordered table-hover">
+
+                <thead class="table-dark">
+
+                    <tr>
+                        <th>ID</th>
+                        <th>Patient</th>
+                        <th>Doctor</th>
+                        <th>Department</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for appointment in recent_appointments %}
+
+                    <tr>
+
+                        <td>{{ appointment.id }}</td>
+
+                        <td>
+                            {{ appointment.patient.user.username }}
+                        </td>
+
+                        <td>
+                            {{ appointment.doctor.user.get_full_name|default:appointment.doctor.user.username }}
+                        </td>
+
+                        <td>
+                            {{ appointment.doctor.department|default:"Not assigned" }}
+                        </td>
+
+                        <td>
+                            {{ appointment.appointment_date|date:"d-m-Y" }}
+                        </td>
+
+                        <td>
+                            {{ appointment.appointment_time|time:"h:i A" }}
+                        </td>
+
+                        <td>
+
+                            {% if appointment.status == "Confirmed" %}
+                                <span class="badge bg-success">Confirmed</span>
+
+                            {% elif appointment.status == "Pending" %}
+                                <span class="badge bg-warning text-dark">Pending</span>
+
+                            {% elif appointment.status == "Cancelled" %}
+                                <span class="badge bg-danger">Cancelled</span>
+
+                            {% else %}
+                                <span class="badge bg-primary">Completed</span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+                        <td colspan="7" class="text-center">
+                            No appointments available.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

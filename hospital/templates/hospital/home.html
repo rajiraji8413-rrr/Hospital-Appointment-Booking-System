@@ -1,0 +1,417 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Hospital Management System</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f4f7fb;
+            font-family: Arial, sans-serif;
+        }
+
+        .navbar {
+            background-color: #0d6efd;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #0d6efd, #084298);
+            color: white;
+            padding: 70px 20px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-weight: bold;
+        }
+
+        .feature-card {
+            background: white;
+            border: none;
+            border-radius: 15px;
+            padding: 25px;
+            height: 100%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 45px;
+            margin-bottom: 15px;
+        }
+
+        .feature-card h4 {
+            color: #0d6efd;
+            font-weight: bold;
+        }
+
+        footer {
+            background-color: #084298;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- NAVIGATION BAR -->
+
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+
+        <a class="navbar-brand fw-bold" href="{% url 'home' %}">
+            Hospital Management
+        </a>
+
+        <button class="navbar-toggler" type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarMenu">
+
+            <span class="navbar-toggler-icon"></span>
+
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarMenu">
+
+            <ul class="navbar-nav ms-auto">
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'home' %}">
+                        Home
+                    </a>
+                </li>
+
+                {% if is_patient %}
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'doctor_list' %}">
+                            Book Appointment
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'my_appointments' %}">
+                            My Appointments
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'patient_profile' %}">
+                            My Profile
+                        </a>
+                    </li>
+
+                {% endif %}
+
+                {% if is_doctor %}
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'doctor_dashboard' %}">
+                            Doctor Dashboard
+                        </a>
+                    </li>
+
+                {% endif %}
+
+                {% if is_admin %}
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/">
+                            Admin Panel
+                        </a>
+                    </li>
+
+                {% endif %}
+
+                {% if user.is_authenticated %}
+
+                    <li class="nav-item">
+                        <form method="POST" action="{% url 'logout' %}">
+                            {% csrf_token %}
+
+                            <button type="submit"
+                                    class="btn btn-light btn-sm mt-1">
+                                Logout
+                            </button>
+                        </form>
+                    </li>
+
+                {% else %}
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">
+                            Login
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'patient_register' %}">
+                            Register
+                        </a>
+                    </li>
+
+                {% endif %}
+
+            </ul>
+
+        </div>
+    </div>
+</nav>
+
+
+<!-- HERO SECTION -->
+
+<section class="hero">
+
+    <div class="container">
+
+        <h1>Welcome to Our Hospital</h1>
+
+        <p class="lead mt-3">
+            Your Health, Our Priority
+        </p>
+
+        <p>
+            Manage your healthcare services easily in one place.
+        </p>
+
+        {% if is_patient %}
+
+            <a href="{% url 'doctor_list' %}"
+               class="btn btn-light btn-lg mt-3">
+                Book an Appointment
+            </a>
+
+        {% elif is_doctor %}
+
+            <a href="{% url 'doctor_dashboard' %}"
+               class="btn btn-light btn-lg mt-3">
+                Open Doctor Dashboard
+            </a>
+
+        {% elif is_admin %}
+
+            <a href="/admin/"
+               class="btn btn-light btn-lg mt-3">
+                Open Admin Panel
+            </a>
+
+        {% else %}
+
+            <a href="{% url 'login' %}"
+               class="btn btn-light btn-lg mt-3">
+                Login to Continue
+            </a>
+
+        {% endif %}
+
+    </div>
+
+</section>
+
+
+<!-- SERVICES SECTION -->
+
+<div class="container my-5">
+
+    <h2 class="text-center fw-bold mb-4">
+        Hospital Services
+    </h2>
+
+    <div class="row g-4">
+
+        {% if is_patient %}
+
+            <!-- BOOK APPOINTMENT -->
+
+            <div class="col-md-4">
+
+                <div class="feature-card text-center">
+
+                    <div class="feature-icon">🩺</div>
+
+                    <h4>Book Appointment</h4>
+
+                    <p>
+                        Find available doctors and book your consultation.
+                    </p>
+
+                    <a href="{% url 'doctor_list' %}"
+                       class="btn btn-primary">
+                        Book Now
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- MY APPOINTMENTS -->
+
+            <div class="col-md-4">
+
+                <div class="feature-card text-center">
+
+                    <div class="feature-icon">📅</div>
+
+                    <h4>My Appointments</h4>
+
+                    <p>
+                        View your appointment details and booking status.
+                    </p>
+
+                    <a href="{% url 'my_appointments' %}"
+                       class="btn btn-primary">
+                        View Appointments
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- MY PROFILE -->
+
+            <div class="col-md-4">
+
+                <div class="feature-card text-center">
+
+                    <div class="feature-icon">👤</div>
+
+                    <h4>My Profile</h4>
+
+                    <p>
+                        View and update your personal information.
+                    </p>
+
+                    <a href="{% url 'patient_profile' %}"
+                       class="btn btn-primary">
+                        View Profile
+                    </a>
+
+                </div>
+
+            </div>
+
+        {% endif %}
+
+
+        {% if is_doctor %}
+
+            <!-- DOCTOR DASHBOARD -->
+
+            <div class="col-md-12">
+
+                <div class="feature-card text-center">
+
+                    <div class="feature-icon">👨‍⚕️</div>
+
+                    <h4>Doctor Dashboard</h4>
+
+                    <p>
+                        View patient appointments and manage their status.
+                    </p>
+
+                    <a href="{% url 'doctor_dashboard' %}"
+                       class="btn btn-primary">
+                        Open Dashboard
+                    </a>
+
+                </div>
+
+            </div>
+
+        {% endif %}
+
+
+        {% if is_admin %}
+
+            <!-- ADMIN PANEL -->
+
+            <div class="col-md-12">
+
+                <div class="feature-card text-center">
+
+                    <div class="feature-icon">⚙️</div>
+
+                    <h4>Administrator Panel</h4>
+
+                    <p>
+                        Manage departments, doctors, patients and appointments.
+                    </p>
+
+                    <a href="/admin/"
+                       class="btn btn-primary">
+                        Open Django Admin
+                    </a>
+
+                </div>
+
+            </div>
+
+        {% endif %}
+
+
+        {% if not user.is_authenticated %}
+
+            <div class="col-md-12">
+
+                <div class="feature-card text-center">
+
+                    <div class="feature-icon">🏥</div>
+
+                    <h4>Hospital Services</h4>
+
+                    <p>
+                        Please log in to access your hospital services.
+                    </p>
+
+                    <a href="{% url 'login' %}"
+                       class="btn btn-primary">
+                        Login
+                    </a>
+
+                    <a href="{% url 'patient_register' %}"
+                       class="btn btn-outline-primary">
+                        Register
+                    </a>
+
+                </div>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+<!-- FOOTER -->
+
+<footer>
+    <p class="mb-0">
+        © 2026 Hospital Appointment System.
+        All Rights Reserved.
+    </p>
+</footer>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
+
+</body>
+</html>
